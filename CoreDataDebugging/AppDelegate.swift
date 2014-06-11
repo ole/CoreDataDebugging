@@ -13,6 +13,7 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate
 {
     var window: UIWindow?
+    var backgroundContext: NSManagedObjectContext?
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: NSDictionary?) -> Bool
     {
@@ -41,7 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         assert(store)
 
         // Set up a managed object context with private queue concurrency
-        let backgroundContext: NSManagedObjectContext? = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
+        backgroundContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         assert(backgroundContext)
         backgroundContext!.persistentStoreCoordinator = storeCoordinator!
         
@@ -60,11 +61,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate
 
         // Work on the background context with using performBlock:
         // This should work but throws a multithreading violation exception on backgroundContext!.save(&potentialSaveError)
-        backgroundContext!.performBlock {
-            let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: backgroundContext!) as NSManagedObject
+        backgroundContext!.performBlockAndWait {
+            let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: self.backgroundContext!) as NSManagedObject
             person.setValue("John Appleseed", forKey: "name")
             var potentialSaveError: NSError?
-            let didSave = backgroundContext!.save(&potentialSaveError)
+            let didSave = self.backgroundContext!.save(&potentialSaveError)
             if (didSave) {
                 println("Saving successful")
             } else {
