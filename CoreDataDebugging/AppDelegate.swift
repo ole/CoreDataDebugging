@@ -35,9 +35,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         let objectModel: NSManagedObjectModel? = NSManagedObjectModel(contentsOfURL: objectModelURL)
         assert(objectModel)
         
+        // Set up a simple in-memory Store (without error handling)
         let storeCoordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: objectModel)
         assert(storeCoordinator)
-        
         let store: NSPersistentStore? = storeCoordinator!.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: nil)
         assert(store)
 
@@ -46,12 +46,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         assert(backgroundContext)
         backgroundContext!.persistentStoreCoordinator = storeCoordinator!
 
-        // Work on the background context with using performBlock:
+        // Work on the background context by using performBlock:
         // This should work but throws a multithreading violation exception on backgroundContext!.save(&potentialSaveError)
         backgroundContext!.performBlockAndWait {
             let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: self.backgroundContext!) as NSManagedObject
             person.setValue("John Appleseed", forKey: "name")
+            
             var potentialSaveError: NSError?
+            
+            // The following line fails with EXC_BAD_INSTRUCTION in +[NSManagedObjectContext __Multithreading_Violation_AllThatIsLeftToUsIsHonor__]:
+            // Why? We're not violating the threading contract here.
             let didSave = self.backgroundContext!.save(&potentialSaveError)
             if (didSave) {
                 println("Saving successful")
