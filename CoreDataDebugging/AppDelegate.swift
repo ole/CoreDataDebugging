@@ -59,14 +59,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate
             let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: backgroundContext) as NSManagedObject
             person.setValue("John Appleseed", forKey: "name")
             
-            if true {
+            if true { // here's where the problem is
                 var potentialSaveError: NSError?
                 let didSave = backgroundContext.save(&potentialSaveError)
+                
                 if (didSave) {
                     println("Saving successful")
-                } else {
-                    let saveError = potentialSaveError!
+                } else if let saveError = potentialSaveError {
                     println("Saving failed with error: \(saveError)")
+                } else {
+                    println("Saving failed without reporting an error!")
                 }
             }
         }
