@@ -45,19 +45,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         backgroundContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType)
         assert(backgroundContext)
         backgroundContext!.persistentStoreCoordinator = storeCoordinator!
-        
-        // Work on the background context without using performBlock:
-        // This should fail because we are violating Core Data's concurrency contract.
-//        let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: backgroundContext!) as NSManagedObject
-//        person.setValue("John Appleseed", forKey: "name")
-//        var potentialSaveError: NSError?
-//        let didSave = backgroundContext!.save(&potentialSaveError)
-//        if (didSave) {
-//            println("Saving successful")
-//        } else {
-//            let saveError = potentialSaveError!
-//            println("Saving failed with error: \(saveError)")
-//        }
 
         // Work on the background context with using performBlock:
         // This should work but throws a multithreading violation exception on backgroundContext!.save(&potentialSaveError)
