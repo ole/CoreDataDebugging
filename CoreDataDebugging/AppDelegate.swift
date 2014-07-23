@@ -46,9 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate
         assert(backgroundContext)
         backgroundContext!.persistentStoreCoordinator = storeCoordinator!
 
-        // Work on the background context by using performBlock:
-        // This should work but throws a multithreading violation exception on backgroundContext!.save(&potentialSaveError)
-        backgroundContext!.performBlockAndWait {
+        let insertPerson: () -> () = {
             let person = NSEntityDescription.insertNewObjectForEntityForName("Person", inManagedObjectContext: self.backgroundContext!) as NSManagedObject
             person.setValue("John Appleseed", forKey: "name")
             
@@ -63,6 +61,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate
                 let saveError = potentialSaveError!
                 println("Saving failed with error: \(saveError)")
             }
+        };
+        
+        // Work on the background context by using performBlock:. This should work.
+        backgroundContext!.performBlockAndWait {
+            insertPerson();
         }
+        
+        // Work with the background context on the main thread. This should throw a multithreading violation.
+        insertPerson();
+        
     }
 }
