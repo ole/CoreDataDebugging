@@ -1,5 +1,7 @@
 # Core Data Concurrency Debugging
 
+**Update: Apple confirmed this as a bug. It has been fixed in Xcode 6 beta 4.**
+
 When running the app from Xcode, make sure that `-com.apple.CoreData.ConcurrencyDebug 1` is included in your launch arguments.
 
 This code is supposed to test the Core Data concurrency debugging flag in iOS 8.
